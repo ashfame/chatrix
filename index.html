@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+    <head>
+
+    </head>
+    <body>
+        <script src="https://github.com/matrix-org/matrix-js-sdk/releases/download/v18.1.0/browser-matrix.min.js"></script>
+        <script>
+            const MATRIX_INSTANCE = "https://matrix.org"
+
+            matrixcs.createClient(MATRIX_INSTANCE).registerGuest().then(function(data){
+                console.log('promise comp',data);
+                const client = matrixcs.createClient({
+                    baseUrl: MATRIX_INSTANCE,
+                    accessToken: data.access_token,
+                    userId: data.user_id,
+                    deviceId: data.device_id,
+                });
+                console.log(client);
+
+                var primary_room = '!OGEhHVWSdvArJzumhm:matrix.org'; // matrix hq room
+
+                client.setGuest(true);
+                client.peekInRoom(primary_room).then(function(data){
+                    console.log('peek view',data);
+                });
+
+                client.on("Room.timeline", function(event, room, toStartOfTimeline) {
+                    if (event.getType() !== "m.room.message") {
+                        return; // only use messages
+                    }
+                    console.log(event.event.content.body);
+                    document.write('<p>' + event.event.content.body + '</p>');
+                });
+
+                client.startClient({
+                    initialSyncLimit: 10
+                });
+            });
+        </script>
+    </body>
+</html>
